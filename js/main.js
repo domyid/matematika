@@ -1,6 +1,7 @@
 import { THEMES, applyTheme } from './themes.js';
-import { buildQuiz, POINTS_PER_CORRECT } from './questions.js';
+import { buildQuiz, POINTS_PER_CORRECT, EXAM_DURATION_SEC } from './questions.js';
 import { REWARDS, getBank, addPoints, getVouchers, redeem } from './rewards.js';
+import { sfx, isMuted, toggleMute } from './sound.js';
 
 // ---------- State aplikasi ----------
 const state = {
@@ -11,7 +12,9 @@ const state = {
   questions: [],
   current: 0,
   answers: [], // index jawaban yang dipilih per soal (null jika belum)
-  locked: false
+  locked: false,
+  timeLeft: EXAM_DURATION_SEC,
+  timerId: null
 };
 
 // ---------- Helper DOM ----------
@@ -54,6 +57,7 @@ function previewTheme(key) {
 function selectTheme(key) {
   state.themeKey = key;
   state.theme = applyTheme(key);
+  sfx.click();
   $('#setup-mascot').textContent = state.theme.mascot;
   showScreen('screen-setup');
 }
@@ -62,6 +66,7 @@ function selectTheme(key) {
 function bindSetup() {
   document.querySelectorAll('.grade-card').forEach((btn) => {
     btn.addEventListener('click', () => {
+      sfx.click();
       state.playerName = ($('#player-name').value || '').trim();
       state.grade = parseInt(btn.dataset.grade, 10);
       startQuiz();
@@ -79,7 +84,41 @@ function startQuiz() {
   state.answers = new Array(state.questions.length).fill(null);
   state.locked = false;
   showScreen('screen-quiz');
+  startTimer();
   renderQuestion();
+}
+
+// ---------- Timer ujian ----------
+function startTimer() {
+  stopTimer();
+  state.timeLeft = EXAM_DURATION_SEC;
+  updateTimerDisplay();
+  state.timerId = setInterval(() => {
+    state.timeLeft -= 1;
+    updateTimerDisplay();
+    if (state.timeLeft <= 10 && state.timeLeft > 0) sfx.tick();
+    if (state.timeLeft <= 0) {
+      stopTimer();
+      sfx.timeup();
+      flash('⏰ Waktu habis! Yuk lihat hasilnya.', false);
+      showResult();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timeLeft / 60);
+  const s = state.timeLeft % 60;
+  $('#timer-text').textContent = `${m}:${String(s).padStart(2, '0')}`;
+  const pill = $('#timer-pill');
+  pill.classList.toggle('warning', state.timeLeft <= 60);
 }
 
 function renderQuestion() {
@@ -139,10 +178,12 @@ function chooseAnswer(index) {
   if (isCorrect) {
     fb.className = 'feedback good';
     fb.innerHTML = `🎉 <strong>Benar!</strong> ${pick(state.theme.emojiSet)} ${q.explain}`;
+    sfx.correct();
     burstConfetti();
   } else {
     fb.className = 'feedback bad';
     fb.innerHTML = `💡 <strong>Belum tepat.</strong> Jawaban benar: <strong>${q.options[q.answer]}</strong>. ${q.explain}`;
+    sfx.wrong();
   }
   fb.hidden = false;
   $('#live-score').textContent = countCorrect() * POINTS_PER_CORRECT;
@@ -151,6 +192,7 @@ function chooseAnswer(index) {
 
 function bindQuizNav() {
   $('#next-btn').addEventListener('click', () => {
+    sfx.click();
     if (state.current < state.questions.length - 1) {
       state.current += 1;
       renderQuestion();
@@ -158,6 +200,12 @@ function bindQuizNav() {
       showResult();
     }
   });
+  $('#mute-btn').addEventListener('click', updateMuteBtn);
+}
+
+function updateMuteBtn() {
+  const muted = toggleMute();
+  $('#mute-btn').textContent = muted ? '🔇' : '🔊';
 }
 
 function countCorrect() {
@@ -169,12 +217,14 @@ function countCorrect() {
 
 // ---------- Layar 4: Hasil ----------
 function showResult() {
+  stopTimer();
   const total = state.questions.length;
   const correct = countCorrect();
   const percent = Math.round((correct / total) * 100);
   const earned = correct * POINTS_PER_CORRECT;
 
   $('#progress-fill').style.width = '100%';
+  sfx.finish();
 
   // tambahkan poin ke bank tabungan
   addPoints(earned);
@@ -221,7 +271,7 @@ function renderRewards() {
     btn.addEventListener('click', () => {
       const res = redeem(r.id);
       flash(res.message, res.ok);
-      if (res.ok) burstConfetti();
+      if (res.ok) { sfx.reward(); burstConfetti(); } else { sfx.wrong(); }
       renderRewards();
     });
     item.appendChild(btn);
@@ -361,6 +411,7 @@ function init() {
   bindQuizNav();
   bindResultActions();
   applyTheme('cinnamoroll'); // tema awal lembut sebelum dipilih
+  $('#mute-btn').textContent = isMuted() ? '🔇' : '🔊';
 }
 
 init();
