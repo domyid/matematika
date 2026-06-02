@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Try Out Matematika 🌸</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Fredoka:wght@500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="confetti" aria-hidden="true"></div>
+
+  <main class="app">
+
+    <!-- ===== LAYAR 1: PILIH TEMA ===== -->
+    <section id="screen-theme" class="screen active">
+      <h1 class="title">Halo, Putri Pintar! 🌸</h1>
+      <p class="subtitle">Pilih karakter kesukaanmu dulu yuk!</p>
+      <div id="theme-grid" class="theme-grid"></div>
+    </section>
+
+    <!-- ===== LAYAR 2: SETUP (nama + kelas) ===== -->
+    <section id="screen-setup" class="screen">
+      <button class="back-btn" data-back="screen-theme">⬅️ Ganti tema</button>
+      <div class="mascot" id="setup-mascot">🐰</div>
+      <h1 class="title">Siap Ujian? ✨</h1>
+      <label class="field">
+        <span>Siapa namamu?</span>
+        <input id="player-name" type="text" placeholder="Tulis namamu di sini" maxlength="20" autocomplete="off" />
+      </label>
+      <p class="subtitle">Pilih ujian kelas berapa:</p>
+      <div class="grade-grid">
+        <button class="grade-card" data-grade="2">
+          <span class="grade-num">2</span>
+          <span class="grade-label">Kelas 2 SD</span>
+          <span class="grade-desc">Data, hitung, bangun & jam</span>
+        </button>
+        <button class="grade-card" data-grade="3">
+          <span class="grade-num">3</span>
+          <span class="grade-label">Kelas 3 SD</span>
+          <span class="grade-desc">Pecahan, bangun datar & keliling</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== LAYAR 3: KUIS ===== -->
+    <section id="screen-quiz" class="screen">
+      <header class="quiz-top">
+        <div class="progress-wrap">
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          <span id="progress-text" class="progress-text">1 / 20</span>
+        </div>
+        <div class="score-pill">⭐ <span id="live-score">0</span> poin</div>
+      </header>
+
+      <div class="materi-tag" id="materi-tag">Materi</div>
+      <h2 id="question-text" class="question"></h2>
+      <div id="question-visual" class="question-visual"></div>
+      <div id="options" class="options"></div>
+
+      <div id="feedback" class="feedback" hidden></div>
+      <button id="next-btn" class="primary-btn" hidden>Lanjut ➡️</button>
+    </section>
+
+    <!-- ===== LAYAR 4: HASIL ===== -->
+    <section id="screen-result" class="screen">
+      <div class="mascot big" id="result-mascot">🎉</div>
+      <h1 class="title" id="result-title">Hebat!</h1>
+      <div class="result-card">
+        <div class="result-score">
+          <div class="big-score"><span id="final-correct">0</span><span class="slash">/20</span></div>
+          <p class="result-line">Skor: <strong id="final-percent">0</strong>%</p>
+          <p class="result-line">Poin diraih: <strong id="final-points">0</strong> ⭐</p>
+        </div>
+        <p class="result-message" id="result-message"></p>
+      </div>
+
+      <!-- Reward / tukar poin -->
+      <div class="reward-box">
+        <h3>🎁 Tukar Poin Reward</h3>
+        <p class="bank-line">Tabungan poin kamu: <strong id="point-bank">0</strong> ⭐</p>
+        <div id="reward-list" class="reward-list"></div>
+        <div id="voucher-list" class="voucher-list"></div>
+      </div>
+
+      <!-- Evaluasi jawaban salah -->
+      <div class="eval-box" id="eval-box">
+        <h3>📒 Belajar dari yang salah</h3>
+        <div id="eval-list" class="eval-list"></div>
+      </div>
+
+      <div class="result-actions">
+        <button id="share-btn" class="wa-btn">📲 Bagikan ke WhatsApp</button>
+        <button id="retry-btn" class="ghost-btn">🔁 Ujian Lagi</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
