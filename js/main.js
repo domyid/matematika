@@ -1,5 +1,5 @@
 import { THEMES, applyTheme } from './themes.js';
-import { QUESTIONS, POINTS_PER_CORRECT } from './questions.js';
+import { buildQuiz, POINTS_PER_CORRECT } from './questions.js';
 import { REWARDS, getBank, addPoints, getVouchers, redeem } from './rewards.js';
 
 // ---------- State aplikasi ----------
@@ -74,7 +74,7 @@ function bindSetup() {
 
 // ---------- Layar 3: Kuis ----------
 function startQuiz() {
-  state.questions = QUESTIONS[state.grade].map((q) => ({ ...q }));
+  state.questions = buildQuiz(state.grade);
   state.current = 0;
   state.answers = new Array(state.questions.length).fill(null);
   state.locked = false;
